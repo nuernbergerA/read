@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>Help children learn reading</title>
+    <link href="https://fonts.googleapis.com/css2?family=Muli&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css"/>
+</head>
+<body>
+<header>
+    <h1>Lesen üben</h1>
+</header>
+<main>
+    <button id="button">Starten</button>
+    <div id="textToRead"></div>
+    <div id="result"></div>
+</main>
+<div class="pyro">
+    <div class="before"></div>
+    <div class="after"></div>
+</div>
+<script>
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'de-AT';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    const textToRead = document.getElementById("textToRead");
+    let wordsToRead = []
+    let currentWordIndex = 0;
+    let lastWordIndex = 0;
+    const button = document.getElementById("button");
+    let listening = false;
+    const stop = () => {
+        recognition.stop();
+        document.getElementsByClassName('pyro')[0].classList.remove('show')
+        button.textContent = "Start";
+    };
+
+    const start = () => {
+        recognition.start();
+        button.textContent = "Stop";
+    };
+
+    function checkForFinal() {
+        if (currentWordIndex <= lastWordIndex) {
+            return;
+        }
+
+        stop()
+        document.getElementsByClassName('pyro')[0].classList.add('show')
+    }
+
+    function parseText(text) {
+        wordsToRead = text.split(' ').map((word) => {
+            return {
+                display: word,
+                stripped: word.replace(/[^\u00C0-\u017FA-Za-z]/g, '').toLowerCase(),
+                matched: false,
+            }
+        })
+
+        lastWordIndex = wordsToRead.length - 1
+    }
+
+    function renderWords() {
+        let renderedWords = []
+
+        wordsToRead.forEach(function (item, index) {
+            let word = document.createElement('span');
+            word.innerText = item.display
+
+            if (item.matched) {
+                word.classList.add('matched')
+            }
+
+            if (index === currentWordIndex) {
+                console.log('listen to ' + item.stripped)
+
+                word.classList.add('current')
+            }
+
+            renderedWords.push(word.outerHTML);
+            if ((index + 1) % 3 === 0) {
+                renderedWords.push('<br>');
+            }
+        })
+
+        textToRead.innerHTML = renderedWords.join(' ')
+    }
+
+    function heardWord(word) {
+        console.log('hear ' + word)
+        wordsToRead = wordsToRead.map(function (item, index) {
+            if (index === currentWordIndex && item.stripped === word) {
+                item.matched = true
+                currentWordIndex++
+            }
+
+            return item;
+        })
+
+        checkForFinal()
+        renderWords()
+    }
+
+
+    // let text = `Das Monster wird ganz blass vor Glück. Bis morgen! ruft es.`
+    // let text = `Das ist für dich! sagt Moritz. Das Monster strahlt. Grässlichen Dank!`
+    // let text = `"Bis morgen!" sagt Moritz. Aber das Monster ist schon verschwunden.`
+    let text = `Das Monster wird ganz blass vor Glück. "Bis morgen!" ruft es. "Das ist für dich!" sagt Moritz. Das Monster strahlt. Grässlichen Dank! "Bis morgen!" sagt Moritz. Aber das Monster ist schon verschwunden.`
+    parseText(text)
+    renderWords()
+
+
+    const onResult = event => {
+        const res = event.results[event.results.length - 1]
+        heardWord(res[0].transcript.replace(/[^\u00C0-\u017FA-Za-z]/g, ' ').toLowerCase().split(' ').splice(-1)[0])
+    };
+
+    recognition.addEventListener("result", onResult);
+    button.addEventListener("click", event => {
+        listening ? stop() : start();
+        listening = !listening;
+    });
+</script>
+</body>
+</html>
