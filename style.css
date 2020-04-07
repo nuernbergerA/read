@@ -102,8 +102,6 @@ footer {
     text-align: center;
 }
 
-
-
 textarea {
     height: 10rem;
     font-family: 'Muli', sans-serif;
@@ -140,7 +138,7 @@ textarea,
 }
 
 .show {
-    display: block;
+    display: block !important;
 }
 
 .hide {
