@@ -12,10 +12,18 @@
 <header>
     <h1>Lesen üben</h1>
 </header>
-<main>
-    <button id="button">Starten</button>
-    <div id="textToRead"></div>
-    <div id="result"></div>
+<main id="settings">
+    <h2>Einstellungen</h2>
+    <textarea id="sourceText">Das Monster wird
+ganz blass vor Glück.
+"Bis morgen!" ruft es.</textarea>
+    <button id="saveSettings">Speichern</button>
+</main>
+<main id="exercise">
+    <button id="button">Start</button>
+    <div id="wrap">
+        <div id="textToRead"></div>
+    </div>
 </main>
 <div class="pyro">
     <div class="before"></div>
@@ -28,6 +36,7 @@
     recognition.continuous = true;
     recognition.interimResults = true;
     const textToRead = document.getElementById("textToRead");
+    const settingsTab = document.getElementById("settings");
     let wordsToRead = []
     let currentWordIndex = 0;
     let lastWordIndex = 0;
@@ -35,11 +44,26 @@
     let listening = false;
     const stop = () => {
         recognition.stop();
-        document.getElementsByClassName('pyro')[0].classList.remove('show')
+        listening = false
         button.textContent = "Start";
     };
 
+    document.getElementById("saveSettings").addEventListener("click", event => {
+        settingsTab.classList.remove('show')
+        settingsTab.classList.add('hide')
+    });
+
     const start = () => {
+        settingsTab.classList.remove('show')
+        settingsTab.classList.add('hide')
+        document.getElementsByClassName('pyro')[0].classList.remove('show')
+        currentWordIndex = 0;
+        lastWordIndex = 0;
+        // let text = `Das Monster wird ganz blass vor Glück. Bis morgen! ruft es.`
+        // let text = `Das ist für dich! sagt Moritz. Das Monster strahlt. Grässlichen Dank!`
+        // let text = `"Bis morgen!" sagt Moritz. Aber das Monster ist schon verschwunden.`
+        parseText(document.getElementById('sourceText').value)
+        renderWords()
         recognition.start();
         button.textContent = "Stop";
     };
@@ -54,10 +78,12 @@
     }
 
     function parseText(text) {
-        wordsToRead = text.split(' ').map((word) => {
+        wordsToRead = text.replace(/(?:\r\n|\r|\n)/g, '<br> ').split(' ').map((word) => {
+            let displayWord = word.replace('<br>', '')
             return {
-                display: word,
-                stripped: word.replace(/[^\u00C0-\u017FA-Za-z]/g, '').toLowerCase(),
+                display: displayWord,
+                stripped: displayWord.replace(/[^\u00C0-\u017FA-Za-z]/g, '').toLowerCase(),
+                newLine: !!word.match('<br>'),
                 matched: false,
             }
         })
@@ -83,7 +109,7 @@
             }
 
             renderedWords.push(word.outerHTML);
-            if ((index + 1) % 3 === 0) {
+            if (item.newLine) {
                 renderedWords.push('<br>');
             }
         })
@@ -105,15 +131,6 @@
         checkForFinal()
         renderWords()
     }
-
-
-    // let text = `Das Monster wird ganz blass vor Glück. Bis morgen! ruft es.`
-    // let text = `Das ist für dich! sagt Moritz. Das Monster strahlt. Grässlichen Dank!`
-    // let text = `"Bis morgen!" sagt Moritz. Aber das Monster ist schon verschwunden.`
-    let text = `Das Monster wird ganz blass vor Glück. "Bis morgen!" ruft es. "Das ist für dich!" sagt Moritz. Das Monster strahlt. Grässlichen Dank! "Bis morgen!" sagt Moritz. Aber das Monster ist schon verschwunden.`
-    parseText(text)
-    renderWords()
-
 
     const onResult = event => {
         const res = event.results[event.results.length - 1]

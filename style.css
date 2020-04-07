@@ -23,6 +23,11 @@ h1 {
     font-weight: 100;
 }
 
+textarea {
+    width: 100%;
+    height: 10rem;
+}
+
 header {
     border-bottom: 1px solid #0d122b;
     margin-bottom: 2em;
@@ -102,8 +107,16 @@ footer {
     text-align: center;
 }
 
+#wrap {
+    position: absolute;
+    left: 50%;
+}
+
 #textToRead {
+    position: relative;
+    left: -50%;
     font-size: 2em;
+    text-align: left;
 }
 
 #textToRead .matched {
@@ -129,7 +142,11 @@ footer {
 }
 
 .show {
-    opacity: 1 !important;
+    display: block;
+}
+
+.hide {
+    display: none;
 }
 
 .pyro {
@@ -137,7 +154,7 @@ footer {
     position: fixed;
     width: 100%;
     height: 100%;
-    opacity: 0;
+    display: none;
 }
 
 .pyro > .before, .pyro > .after {
