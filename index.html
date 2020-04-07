@@ -17,13 +17,10 @@
     <textarea id="sourceText">Das Monster wird
 ganz blass vor Glück.
 "Bis morgen!" ruft es.</textarea>
-    <button id="saveSettings">Speichern</button>
 </main>
 <main id="exercise">
     <button id="button">Start</button>
-    <div id="wrap">
-        <div id="textToRead"></div>
-    </div>
+    <div id="textToRead"></div>
 </main>
 <div class="pyro">
     <div class="before"></div>
@@ -47,11 +44,6 @@ ganz blass vor Glück.
         listening = false
         button.textContent = "Start";
     };
-
-    document.getElementById("saveSettings").addEventListener("click", event => {
-        settingsTab.classList.remove('show')
-        settingsTab.classList.add('hide')
-    });
 
     const start = () => {
         settingsTab.classList.remove('show')
